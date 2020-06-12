@@ -17,5 +17,7 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 
 Route::group(['middleware' => ['auth']], function() {
-    Route::get('/', 'PostsController@index');
+    Route::get('/', 'HomeController@index');
+    Route::get('/posts', 'PostsController@index');
+    Route::post('/posts', 'PostsController@store');
 });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Post;
 use Illuminate\Http\Request;
 
 class PostsController extends Controller
@@ -13,17 +14,14 @@ class PostsController extends Controller
      */
     public function index()
     {
-        return view('home');
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $posts = Post::orderBy('id', 'DESC')->get();
+
+        return response()->json([
+            'posts' => $posts,
+        ]);
+        
+        // return view('home');
     }
 
     /**
@@ -32,9 +30,16 @@ class PostsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Post $post)
     {
-        //
+        // create post
+        $createdPost = $request->user()->posts()->create([
+            'title' => $request->title,
+            'body' => $request->body
+        ]);
+
+        // return response
+        return response()->json($post->with('user')->find($createdPost->id));
     }
 
     /**
