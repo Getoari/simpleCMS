@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
 use App\Post;
 use Illuminate\Http\Request;
+use App\Events\PostCreated;
 
 class PostsController extends Controller
 {
@@ -15,13 +17,11 @@ class PostsController extends Controller
     public function index()
     {
 
-        $posts = Post::orderBy('id', 'DESC')->get();
+        $posts = Post::with('user')->orderBy('id', 'desc')->get();
 
         return response()->json([
             'posts' => $posts,
         ]);
-        
-        // return view('home');
     }
 
     /**
@@ -37,6 +37,9 @@ class PostsController extends Controller
             'title' => $request->title,
             'body' => $request->body
         ]);
+
+        // broadcast
+        broadcast(new PostCreated($createdPost, $request->user()))->toOthers();
 
         // return response
         return response()->json($post->with('user')->find($createdPost->id));

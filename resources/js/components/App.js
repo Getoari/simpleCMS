@@ -11,10 +11,29 @@ class App extends Component {
             posts: []
         }
 
-        //bind
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handleTitleChange = this.handleTitleChange.bind(this)
         this.handleBodyChange = this.handleBodyChange.bind(this)
+        this.renderPosts = this.renderPosts.bind(this)
+
+        this.getPosts()
+    }
+
+    getPosts() {
+        axios.get('/posts').then((
+            response 
+        ) =>
+            this.setState({
+                posts: [...response.data.posts]
+            })
+        );
+    }
+
+    componentDidMount() {
+        Echo.private('new-post').listen('PostCreated', e => {
+            console.log('from pusher', e.post);
+            this.setState({ posts: [e.post, ...this.state.posts] });
+        });
     }
 
     handleSubmit(e) {
@@ -23,12 +42,13 @@ class App extends Component {
         axios.post('/posts', {
             title: this.state.title,
             body: this.state.body
-        })
-        .then(response => {
+        }).then(response => {
             this.setState({
-                posts: [...this.state.posts, response.data]
-            })
-        })
+                posts: [response.data, ...this.state.posts],
+                title: '',
+                body: ''
+            });
+        });
 
         this.setState({
             title: '',
@@ -46,6 +66,19 @@ class App extends Component {
         this.setState({
             body: e.target.value
         })
+    }
+
+    renderPosts() {
+        return this.state.posts.map(post => (
+            <div key={post.id} className="media">
+                <div className="media-body">
+                    <h4>{post.title}</h4>
+                    <small><i>Posted by: {post.user.username}</i></small><br/>
+                    <p>{post.body}</p>
+                    <hr/>
+                </div>
+            </div>
+        ))
     }
 
     render() {
@@ -90,17 +123,8 @@ class App extends Component {
                     <div className="col-md-6">
                         <div className="card">
                             <div className="card-header">Recent Posts</div>
-    
                             <div className="card-body">
-                                {this.state.posts.map(post => (
-                                    <div key={post.id.toString()} className="media">
-                                        <div className="media-object">
-                                            <p>Title: {post.title}</p>
-                                            <small>Posted by: {post.user.username}</small>
-                                            <p>{post.body}</p>
-                                        </div>
-                                    </div>
-                                ))}
+                                {this.renderPosts()}
                             </div>
                         </div>
                     </div>
