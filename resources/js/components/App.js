@@ -39,6 +39,10 @@ class App extends Component {
             // console.log('from pusher', e.post);
             this.setState({ posts: [e.post, ...this.state.posts] });
         });
+
+        Echo.private('delete-post').listen('PostDeleted', e => {
+            this.getPosts();
+        });
     }
 
     handleSubmit(e) {

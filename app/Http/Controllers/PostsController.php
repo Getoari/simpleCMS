@@ -7,6 +7,7 @@ use App\Post;
 use App\User;
 use Illuminate\Http\Request;
 use App\Events\PostCreated;
+use App\Events\PostDeleted;
 
 class PostsController extends Controller
 {
@@ -91,6 +92,9 @@ class PostsController extends Controller
     {
         $user = Auth::user();
 
-        $user->posts()->where('id', $id)->delete();
+        $post = $user->posts()->where('id', $id)->delete();
+
+        // broadcast
+        broadcast(new PostDeleted($user))->toOthers();
     }
 }

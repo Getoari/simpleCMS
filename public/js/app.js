@@ -72365,6 +72365,9 @@ var App = /*#__PURE__*/function (_Component) {
           posts: [e.post].concat(_toConsumableArray(_this3.state.posts))
         });
       });
+      Echo["private"]('delete-post').listen('PostDeleted', function (e) {
+        _this3.getPosts();
+      });
     }
   }, {
     key: "handleSubmit",
