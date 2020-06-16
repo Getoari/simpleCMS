@@ -1,5 +1,6 @@
 import React, {Component} from "react"
 import axios from "axios"
+import Button from 'react-bootstrap/Button';
 
 class App extends Component {
 
@@ -8,30 +9,34 @@ class App extends Component {
         this.state = {
             title: '',
             body: '',
+            loggedUser: '',
+            postToDelete: '',
             posts: []
         }
 
         this.handleSubmit = this.handleSubmit.bind(this)
-        this.handleTitleChange = this.handleTitleChange.bind(this)
-        this.handleBodyChange = this.handleBodyChange.bind(this)
+        this.handleChange = this.handleChange.bind(this)
+        this.handleDelete = this.handleDelete.bind(this)
         this.renderPosts = this.renderPosts.bind(this)
-
-        this.getPosts()
     }
 
     getPosts() {
-        axios.get('/posts').then((
+        axios.get('/api/posts').then((
             response 
         ) =>
             this.setState({
-                posts: [...response.data.posts]
+                posts: [...response.data.posts],
+                loggedUser: response.data.user.username
             })
         );
     }
 
     componentDidMount() {
+
+        this.getPosts()
+
         Echo.private('new-post').listen('PostCreated', e => {
-            console.log('from pusher', e.post);
+            // console.log('from pusher', e.post);
             this.setState({ posts: [e.post, ...this.state.posts] });
         });
     }
@@ -39,7 +44,7 @@ class App extends Component {
     handleSubmit(e) {
         e.preventDefault()
         
-        axios.post('/posts', {
+        axios.post('/api/posts', {
             title: this.state.title,
             body: this.state.body
         }).then(response => {
@@ -56,24 +61,36 @@ class App extends Component {
         })
     }    
 
-    handleTitleChange(e) {
+    handleChange(e) {
+        const {name, value} = event.target
         this.setState({
-            title: e.target.value
+            [name]: value
         })
     }
 
-    handleBodyChange(e) {
-        this.setState({
-            body: e.target.value
+    handleDelete(e) {
+
+        const id = e.target.id
+
+        axios.delete(`/api/posts/${id}`)
+        .then(res => {
+            if (res.status === 200) {
+                this.getPosts()
+                // let remainingPosts = this.state.posts.filter((post) => {
+                //     return post.id !== id
+                // });
+            
+                // this.setState({ posts: remainingPosts })
+            }
         })
-    }
+    }    
 
     renderPosts() {
         return this.state.posts.map(post => (
             <div key={post.id} className="media">
                 <div className="media-body">
-                    <h4>{post.title}</h4>
-                    <small><i>Posted by: {post.user.username}</i></small><br/>
+                    <h4>{post.title} {this.state.loggedUser === post.user.username && <Button id={post.id} className="float-right" onClick={this.handleDelete} variant="danger">Delete</Button>}</h4>
+                    <small><i>Posted by: <strong>{post.user.username}</strong></i></small><br/>
                     <p>{post.body}</p>
                     <hr/>
                 </div>
@@ -93,8 +110,9 @@ class App extends Component {
                                 <form onSubmit={this.handleSubmit}>
                                     {/* Title */}
                                     <div className="form-group">
-                                        <input 
-                                            onChange={this.handleTitleChange}
+                                        <input
+                                            name="title"
+                                            onChange={this.handleChange}
                                             value={this.state.title}
                                             type="text" 
                                             placeholder="Enter your post title here!" 
@@ -104,8 +122,9 @@ class App extends Component {
                                     </div>
                                     {/* Body */}
                                     <div className="form-group">
-                                        <textarea 
-                                            onChange={this.handleBodyChange}
+                                        <textarea
+                                            name="body"
+                                            onChange={this.handleChange}
                                             value={this.state.body}
                                             className="form-control" 
                                             rows="5" 

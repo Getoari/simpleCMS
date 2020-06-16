@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Auth;
 use App\Post;
+use App\User;
 use Illuminate\Http\Request;
 use App\Events\PostCreated;
 
@@ -16,11 +17,12 @@ class PostsController extends Controller
      */
     public function index()
     {
-
+        $user = Auth::user();
         $posts = Post::with('user')->orderBy('id', 'desc')->get();
 
         return response()->json([
             'posts' => $posts,
+            'user' => $user
         ]);
     }
 
@@ -87,6 +89,8 @@ class PostsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = Auth::user();
+
+        $user->posts()->where('id', $id)->delete();
     }
 }
