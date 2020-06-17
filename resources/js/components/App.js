@@ -1,6 +1,7 @@
-import React, {Component} from "react"
-import axios from "axios"
-import Button from 'react-bootstrap/Button';
+import React, {Component, useState} from 'react'
+import axios from 'axios'
+import Button from 'react-bootstrap/Button'
+import Edit from './views/edit'
 
 class App extends Component {
 
@@ -10,13 +11,13 @@ class App extends Component {
             title: '',
             body: '',
             loggedUser: '',
-            postToDelete: '',
             posts: []
         }
 
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handleChange = this.handleChange.bind(this)
         this.handleDelete = this.handleDelete.bind(this)
+        this.handleEdit = this.handleEdit.bind(this)
         this.renderPosts = this.renderPosts.bind(this)
     }
 
@@ -36,11 +37,10 @@ class App extends Component {
         this.getPosts()
 
         Echo.private('new-post').listen('PostCreated', e => {
-            // console.log('from pusher', e.post);
             this.setState({ posts: [e.post, ...this.state.posts] });
         });
 
-        Echo.private('delete-post').listen('PostDeleted', e => {
+        Echo.private('update-post').listen('PostModified', e => {
             this.getPosts();
         });
     }
@@ -54,8 +54,6 @@ class App extends Component {
         }).then(response => {
             this.setState({
                 posts: [response.data, ...this.state.posts],
-                title: '',
-                body: ''
             });
         });
 
@@ -73,27 +71,29 @@ class App extends Component {
     }
 
     handleDelete(e) {
-
         const id = e.target.id
 
         axios.delete(`/api/posts/${id}`)
         .then(res => {
             if (res.status === 200) {
-                this.getPosts()
-                // let remainingPosts = this.state.posts.filter((post) => {
-                //     return post.id !== id
-                // });
-            
-                // this.setState({ posts: remainingPosts })
+                // succesfully deleted message
             }
         })
-    }    
+    }   
+    
+    handleEdit(e) {
+        <Edit />
+    }   
 
     renderPosts() {
         return this.state.posts.map(post => (
             <div key={post.id} className="media">
                 <div className="media-body">
-                    <h4>{post.title} {this.state.loggedUser === post.user.username && <Button id={post.id} className="float-right" onClick={this.handleDelete} variant="danger">Delete</Button>}</h4>
+                    <h4>{post.title} {this.state.loggedUser === post.user.username && <span className="px-2">
+                        <Button id={post.id} className="float-right mx-2" onClick={this.handleDelete} variant="danger">Delete</Button>
+                        <Edit id={post.id} title={post.title} body={post.body} />
+                        </span>}
+                    </h4>
                     <small><i>Posted by: <strong>{post.user.username}</strong></i></small><br/>
                     <p>{post.body}</p>
                     <hr/>
@@ -103,13 +103,14 @@ class App extends Component {
     }
 
     render() {
+
         return (
             <div className="container">
                 <div className="row justify-content-center">
                     <div className="col-md-6">
                         <div className="card">
                             <div className="card-header">Post Something</div>
-    
+                            
                             <div className="card-body">
                                 <form onSubmit={this.handleSubmit}>
                                     {/* Title */}
@@ -151,8 +152,8 @@ class App extends Component {
                             </div>
                         </div>
                     </div>
+
                 </div>
-                
             </div>
         );
     }

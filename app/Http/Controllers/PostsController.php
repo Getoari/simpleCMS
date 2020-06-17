@@ -7,7 +7,7 @@ use App\Post;
 use App\User;
 use Illuminate\Http\Request;
 use App\Events\PostCreated;
-use App\Events\PostDeleted;
+use App\Events\PostModified;
 
 class PostsController extends Controller
 {
@@ -79,7 +79,13 @@ class PostsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user = Auth::user();
+
+        $post = $user->posts()->where('id', $id)
+            ->update(['title' => $request->title, 'body' => $request->body]);
+
+        // broadcast
+        event(new PostModified($user));
     }
 
     /**
@@ -95,6 +101,6 @@ class PostsController extends Controller
         $post = $user->posts()->where('id', $id)->delete();
 
         // broadcast
-        broadcast(new PostDeleted($user))->toOthers();
+        event(new PostModified($user));
     }
 }
