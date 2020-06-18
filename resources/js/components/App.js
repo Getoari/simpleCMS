@@ -1,7 +1,9 @@
 import React, {Component, useState} from 'react'
 import axios from 'axios'
 import Button from 'react-bootstrap/Button'
-import Edit from './views/edit'
+import Edit from './views/Edit'
+import Spinner from 'react-bootstrap/Spinner'
+import Fade from 'react-bootstrap/Fade'
 
 class App extends Component {
 
@@ -11,25 +13,27 @@ class App extends Component {
             title: '',
             body: '',
             loggedUser: '',
+            loading: false,
             posts: []
         }
 
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handleChange = this.handleChange.bind(this)
         this.handleDelete = this.handleDelete.bind(this)
-        this.handleEdit = this.handleEdit.bind(this)
         this.renderPosts = this.renderPosts.bind(this)
     }
 
     getPosts() {
         axios.get('/api/posts').then((
             response 
-        ) =>
+        ) => {
             this.setState({
                 posts: [...response.data.posts],
                 loggedUser: response.data.user.username
             })
-        );
+            this.setState({loading: false})
+        });
+      
     }
 
     componentDidMount() {
@@ -48,6 +52,8 @@ class App extends Component {
     handleSubmit(e) {
         e.preventDefault()
         
+        this.setState({loading: true})
+
         axios.post('/api/posts', {
             title: this.state.title,
             body: this.state.body
@@ -55,7 +61,10 @@ class App extends Component {
             this.setState({
                 posts: [response.data, ...this.state.posts],
             });
+            this.setState({loading: false})
         });
+        
+        
 
         this.setState({
             title: '',
@@ -73,21 +82,20 @@ class App extends Component {
     handleDelete(e) {
         const id = e.target.id
 
+        this.setState({loading: true})
+
         axios.delete(`/api/posts/${id}`)
         .then(res => {
             if (res.status === 200) {
-                // succesfully deleted message
+                // succesfully deleted
             }
         })
-    }   
-    
-    handleEdit(e) {
-        <Edit />
     }   
 
     renderPosts() {
         return this.state.posts.map(post => (
             <div key={post.id} className="media">
+                <Fade in={true} appear={true} >
                 <div className="media-body">
                     <h4>{post.title} {this.state.loggedUser === post.user.username && <span className="px-2">
                         <Button id={post.id} className="float-right mx-2" onClick={this.handleDelete} variant="danger">Delete</Button>
@@ -98,6 +106,7 @@ class App extends Component {
                     <p>{post.body}</p>
                     <hr/>
                 </div>
+                </Fade>
             </div>
         ))
     }
@@ -110,7 +119,6 @@ class App extends Component {
                     <div className="col-md-6">
                         <div className="card">
                             <div className="card-header">Post Something</div>
-                            
                             <div className="card-body">
                                 <form onSubmit={this.handleSubmit}>
                                     {/* Title */}

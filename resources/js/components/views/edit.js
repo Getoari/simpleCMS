@@ -2,11 +2,13 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
+import Spinner from 'react-bootstrap/Spinner'
 
 
 function Edit(props) {
 
     const [show, setShow] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     const handleClose = () => setShow(false)
     const handleShow = () => setShow(true)
@@ -15,13 +17,15 @@ function Edit(props) {
     const [body, setBody] = useState(props.body)
 
     function handleSubmit() {
-
+        setLoading(true)
         axios.put(`/api/posts/${props.id}`, {
             title: title,
             body: body
         }).then(response => {
-            if (response.status === 200)
+            if (response.status === 200) {
                 setShow(false)
+                setLoading(false)
+            }
         }); 
         
     }
@@ -29,7 +33,6 @@ function Edit(props) {
     return (
         <>
         <Button className="float-right" onClick={handleShow} variant="secondary">Edit</Button>
-
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Edit Post</Modal.Title>
@@ -61,7 +64,13 @@ function Edit(props) {
                 </Modal.Body>
             <Modal.Footer>
                 <Button variant="primary" onClick={handleSubmit}>
-                    Save Changes
+                { loading ? <div className="align-middle"><Spinner
+                                as="span"
+                                animation="grow"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                                /><span>Saving...</span></div> : <span>Save Changes</span> }
                 </Button>
             </Modal.Footer>
         </Modal>
