@@ -1,9 +1,10 @@
-import React, {Component, useState} from 'react'
+import React, {Component} from 'react'
 import axios from 'axios'
 import Button from 'react-bootstrap/Button'
 import Edit from './views/Edit'
 import Spinner from 'react-bootstrap/Spinner'
 import Fade from 'react-bootstrap/Fade'
+import Pagination from "react-js-pagination";
 
 class App extends Component {
 
@@ -13,6 +14,9 @@ class App extends Component {
             title: '',
             body: '',
             loggedUser: '',
+            currentPage: 1, 
+            perPage: '', 
+            total: '',
             loading: false,
             posts: []
         }
@@ -23,12 +27,16 @@ class App extends Component {
         this.renderPosts = this.renderPosts.bind(this)
     }
 
-    getPosts() {
-        axios.get('/api/posts').then((
+    getPosts(pageNumber) {
+        axios.get(`/api/posts?page=${pageNumber}`).then((
             response 
         ) => {
+            console.log(response.data)
             this.setState({
-                posts: [...response.data.posts],
+                currentPage: response.data.posts.current_page, 
+                perPage: response.data.posts.per_page, 
+                total: response.data.posts.total,
+                posts: [...response.data.posts.data],
                 loggedUser: response.data.user.username
             })
             this.setState({loading: false})
@@ -38,33 +46,33 @@ class App extends Component {
 
     componentDidMount() {
 
-        this.getPosts()
+        this.getPosts(this.state.currentPage)
 
         Echo.private('new-post').listen('PostCreated', e => {
-            this.setState({ posts: [e.post, ...this.state.posts] });
+            this.getPosts(this.state.currentPage)
         });
 
         Echo.private('update-post').listen('PostModified', e => {
-            this.getPosts();
+            this.getPosts(this.state.currentPage)
         });
     }
 
     handleSubmit(e) {
         e.preventDefault()
         
-        this.setState({loading: true})
+        this.setState({loading: true,
+            currentPage: 1})
 
         axios.post('/api/posts', {
             title: this.state.title,
             body: this.state.body
         }).then(response => {
+            this.getPosts(this.state.currentPage)
+
             this.setState({
-                posts: [response.data, ...this.state.posts],
-            });
-            this.setState({loading: false})
+                loading: false
+            })
         });
-        
-        
 
         this.setState({
             title: '',
@@ -93,9 +101,12 @@ class App extends Component {
     }   
 
     renderPosts() {
-        return this.state.posts.map(post => (
+
+        return (
+            <React.Fragment>
+            {this.state.posts.map(post => (
             <div key={post.id} className="media">
-                <Fade in={true} appear={true} >
+                <Fade in appear >
                 <div className="media-body">
                     <h4>{post.title} {this.state.loggedUser === post.user.username && <span className="px-2">
                         <Button id={post.id} className="float-right mx-2" onClick={this.handleDelete} variant="danger">Delete</Button>
@@ -108,7 +119,23 @@ class App extends Component {
                 </div>
                 </Fade>
             </div>
-        ))
+            ))}
+            { this.state.total &&  
+                <Pagination
+                    activePage={this.state.currentPage}
+                    itemsCountPerPage={this.state.perPage}
+                    totalItemsCount={this.state.total}
+                    pageRangeDisplayed={5}
+                    onChange={(pageNumber) => this.getPosts(pageNumber)}
+                    itemClass="page-item"
+                    linkClass="page-link"
+                    firstPageText="First"
+                    lastPageText="Last"
+                />
+            }
+            {console.log()}
+            </React.Fragment>
+        )
     }
 
     render() {
@@ -156,7 +183,7 @@ class App extends Component {
                         <div className="card">
                             <div className="card-header">Recent Posts</div>
                             <div className="card-body">
-                                {this.renderPosts()}
+                                {this.state.loading ? <div className="d-flex justify-content-center"><Spinner animation="border" /></div> : this.renderPosts()}
                             </div>
                         </div>
                     </div>

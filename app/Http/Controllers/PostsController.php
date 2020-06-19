@@ -19,7 +19,7 @@ class PostsController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $posts = Post::with('user')->orderBy('id', 'desc')->get();
+        $posts = Post::with('user')->orderBy('id', 'desc')->paginate(5);
 
         return response()->json([
             'posts' => $posts,
