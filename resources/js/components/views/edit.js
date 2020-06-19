@@ -56,8 +56,8 @@ function Edit(props) {
                                 onChange={e => setBody(e.target.value)}
                                 value={body}
                                 className="form-control" 
-                                rows="5" 
-                                maxLength="200"
+                                rows="14" 
+                                maxLength="2000"
                                 required
                             />
                         </div>

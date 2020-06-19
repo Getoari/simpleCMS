@@ -8,6 +8,7 @@ use App\User;
 use Illuminate\Http\Request;
 use App\Events\PostCreated;
 use App\Events\PostModified;
+use Illuminate\Support\Str;
 
 class PostsController extends Controller
 {
@@ -20,6 +21,10 @@ class PostsController extends Controller
     {
         $user = Auth::user();
         $posts = Post::with('user')->orderBy('id', 'desc')->paginate(5);
+
+        foreach($posts as $post){
+            $post->body = (String) Str::of($post->body)->limit(150);
+        }
 
         return response()->json([
             'posts' => $posts,
@@ -42,7 +47,9 @@ class PostsController extends Controller
         ]);
 
         // broadcast
-        broadcast(new PostCreated($createdPost, $request->user()))->toOthers();
+        // broadcast(new PostCreated($createdPost, $request->user()))->toOthers();
+        broadcast(new PostCreated($createdPost, $request->user()));
+
 
         // return response
         return response()->json($post->with('user')->find($createdPost->id));
@@ -56,7 +63,13 @@ class PostsController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = Auth::user();
+        $post = Post::with('user')->where('id', $id)->get();
+
+        return response()->json([
+            'post' => $post,
+            'user' => $user
+        ]);
     }
 
     /**
