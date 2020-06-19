@@ -156,7 +156,7 @@ class App extends Component {
                         <div className="card">
                             <div className="card-header">Recent Posts</div>
                             <div className="card-body">
-                                {this.renderPosts()}
+                                {this.state.loading ? <div className="d-flex justify-content-center"><Spinner animation="border" /></div> : this.renderPosts()}
                             </div>
                         </div>
                     </div>
