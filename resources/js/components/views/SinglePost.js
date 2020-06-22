@@ -24,9 +24,13 @@ class SinglePost extends Component {
     componentDidMount() {
         this.loadPost()
 
-        Echo.private('update-post').listen('PostModified', e => {
-            this.setState({currentPostId: -1})
-        })
+        try {
+            Echo.private('update-post').listen('PostModified', e => {
+                this.setState({currentPostId: -1})
+            })
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     componentDidUpdate() {

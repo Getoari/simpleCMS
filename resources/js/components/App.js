@@ -10,13 +10,9 @@ class App extends Component {
 
     constructor(props) {
         super(props)
-        this.state = {
-            loading: false,
-        }
     }
 
     render() {
-
         return (
             <BrowserRouter>
             <div className="container">
