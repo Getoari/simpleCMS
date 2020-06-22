@@ -80070,8 +80070,8 @@ function Edit(props) {
     },
     value: body,
     className: "form-control",
-    rows: "14",
-    maxLength: "2000",
+    rows: "5",
+    maxLength: "200",
     required: true
   }))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_bootstrap_Modal__WEBPACK_IMPORTED_MODULE_2__["default"].Footer, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_bootstrap_Button__WEBPACK_IMPORTED_MODULE_3__["default"], {
     variant: "primary",
