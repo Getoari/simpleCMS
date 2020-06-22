@@ -79,7 +79,7 @@ class Post extends Component {
                         />
                     </div>
                     <input type="submit" value="POST" className="btn btn-primary form-control" />
-                    { this.state.redirectId && <Redirect to={`/${this.state.redirectId}`} />}
+                    { this.state.redirectId && <Redirect to={`/${this.state.redirectId}?page=1`} />}
                 </form>
             </Fade>
         )

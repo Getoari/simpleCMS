@@ -30,7 +30,7 @@ class Posts extends Component {
 
         try {
             Echo.private('new-post').listen('PostCreated', e => {
-                this.getPosts(this.state.currentPage)
+                this.getPosts(1)
             })
             Echo.private('update-post').listen('PostModified', e => {
                 this.getPosts(this.state.currentPage)

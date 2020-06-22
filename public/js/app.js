@@ -79878,15 +79878,9 @@ var App = /*#__PURE__*/function (_Component) {
   var _super = _createSuper(App);
 
   function App(props) {
-    var _this;
-
     _classCallCheck(this, App);
 
-    _this = _super.call(this, props);
-    _this.state = {
-      loading: false
-    };
-    return _this;
+    return _super.call(this, props);
   }
 
   _createClass(App, [{
@@ -79957,7 +79951,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _App__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./App */ "./resources/js/components/App.js");
 
 
- // import '../../sass/App.scss';
+
 
 if (document.getElementById('root')) {
   react_dom__WEBPACK_IMPORTED_MODULE_1___default.a.render( /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_App__WEBPACK_IMPORTED_MODULE_2__["default"], null), document.getElementById('root'));
@@ -80228,7 +80222,7 @@ var Post = /*#__PURE__*/function (_Component) {
         value: "POST",
         className: "btn btn-primary form-control"
       }), this.state.redirectId && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_2__["Redirect"], {
-        to: "/".concat(this.state.redirectId)
+        to: "/".concat(this.state.redirectId, "?page=1")
       })));
     }
   }]);
@@ -80331,7 +80325,7 @@ var Posts = /*#__PURE__*/function (_Component) {
 
       try {
         Echo["private"]('new-post').listen('PostCreated', function (e) {
-          _this2.getPosts(_this2.state.currentPage);
+          _this2.getPosts(1);
         });
         Echo["private"]('update-post').listen('PostModified', function (e) {
           _this2.getPosts(_this2.state.currentPage);
@@ -80497,11 +80491,16 @@ var SinglePost = /*#__PURE__*/function (_Component) {
       var _this2 = this;
 
       this.loadPost();
-      Echo["private"]('update-post').listen('PostModified', function (e) {
-        _this2.setState({
-          currentPostId: -1
+
+      try {
+        Echo["private"]('update-post').listen('PostModified', function (e) {
+          _this2.setState({
+            currentPostId: -1
+          });
         });
-      });
+      } catch (error) {
+        console.log(error);
+      }
     }
   }, {
     key: "componentDidUpdate",
