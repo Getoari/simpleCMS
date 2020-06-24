@@ -19,7 +19,6 @@ class PostsController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
         $posts = Post::with('user')->orderBy('id', 'desc')->paginate(5);
 
         foreach($posts as $post){
@@ -27,8 +26,7 @@ class PostsController extends Controller
         }
 
         return response()->json([
-            'posts' => $posts,
-            'user' => $user
+            'posts' => $posts
         ]);
     }
 
@@ -63,12 +61,10 @@ class PostsController extends Controller
      */
     public function show($id)
     {
-        $user = Auth::user();
         $post = Post::with('user')->where('id', $id)->get();
 
         return response()->json([
-            'post' => $post,
-            'user' => $user
+            'post' => $post
         ]);
     }
 
