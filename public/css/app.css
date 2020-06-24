@@ -10930,15 +10930,12 @@ a.text-dark:focus {
 
 #post-container {
   padding: 2.5 rem;
+  white-space: pre-wrap;
 }
 
 .card {
   border-radius: 0;
   height: 40vw;
-}
-
-.card-body {
-  white-space: pre-wrap;
 }
 
 .btn {
