@@ -2,13 +2,19 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App'
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> redux
 import { createStore } from 'redux'
 import { Provider } from 'react-redux'
 
 import reducer from '../store/reducer'
 
 const store = createStore(reducer)
+<<<<<<< HEAD
+>>>>>>> redux
+=======
 >>>>>>> redux
 
 if (document.getElementById('root')) {
