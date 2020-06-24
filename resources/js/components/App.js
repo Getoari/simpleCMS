@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import Button from 'react-bootstrap/Button'
 import { BrowserRouter, Route, Link, Switch } from 'react-router-dom'
+import { connect } from 'react-redux'
 
 import Posts from './views/Posts'
 import SinglePost from './views/SinglePost'
@@ -8,10 +9,29 @@ import NewPost from './views/NewPost'
 
 class App extends Component {
 
+<<<<<<< HEAD
     constructor(props) {
         super(props)
     }
 
+=======
+    constructor() {
+        super()
+    }
+
+    componentDidMount() {
+        this.getLoggedUser()
+    }
+
+    getLoggedUser() {
+        axios.get('/api/user').then((
+            response
+        ) => {
+            this.props.addUser(response.data.username)
+        });
+    }
+
+>>>>>>> redux
     render() {
         return (
             <BrowserRouter>
@@ -47,4 +67,10 @@ class App extends Component {
     }
 }
 
-export default App
+const mapDispatchToProps = dispatch => {
+    return {
+        addUser: (user) => dispatch({type: 'USER', value: user})
+    }
+}
+
+export default connect(null, mapDispatchToProps)(App)

@@ -10930,6 +10930,7 @@ a.text-dark:focus {
 
 #post-container {
   padding: 2.5 rem;
+  white-space: pre-wrap;
 }
 
 .card {

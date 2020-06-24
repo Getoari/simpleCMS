@@ -4,6 +4,7 @@ import Fade from 'react-bootstrap/Fade'
 import Pagination from 'react-js-pagination'
 import { NavLink } from 'react-router-dom'
 import Spinner from 'react-bootstrap/Spinner'
+import { connect } from 'react-redux'
 
 
 class Posts extends Component {
@@ -11,7 +12,6 @@ class Posts extends Component {
     constructor() {
         super()
         this.state = {
-            loggedUser: '',
             currentPage: 1,
             perPage: '', 
             total: '',
@@ -50,7 +50,6 @@ class Posts extends Component {
                 perPage: response.data.posts.per_page, 
                 total: response.data.posts.total,
                 posts: [...response.data.posts.data],
-                loggedUser: response.data.user.username
             })
             this.setState({loading: false})
         }).catch(function (error) {
@@ -70,7 +69,10 @@ class Posts extends Component {
                     <Fade in appear >
                         <div className="media-body" >
                             <h4>{post.title}</h4>
-                            <small><i>Posted by: <strong>{post.user.username}</strong></i></small><br/>
+                            <small><i>
+                                Posted by: <strong>{this.props.user.loggedUser === post.user.username ? 'You' : post.user.username}</strong>
+                            </i></small>
+                            <br/>
                             <p>{post.body}</p>
                         </div>
                     </Fade>
@@ -96,4 +98,10 @@ class Posts extends Component {
     }
 }
 
-export default Posts
+const mapStateToProps = state => {
+    return {
+        user: state
+    }
+}
+
+export default connect(mapStateToProps)(Posts)
